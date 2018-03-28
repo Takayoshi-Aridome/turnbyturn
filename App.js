@@ -1,9 +1,13 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import MapView from 'react-native-maps';
-import Directions from 'react-native-maps-directions';
-import Gps from './src/utils/Gps';
+'use strict';
 
+import React, { Component } from 'react';
+import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import MapView from 'react-native-maps';
+import MapsDirections from 'react-native-maps-directions';
+import Gps from './src/utils/Gps';
+import Directions from './src/utils/maps/Directions'
+
+const { width, height } = Dimensions.get('window');
 const directionsAPI ='AIzaSyA98lgVgXep3eAhAmuUTUyNyHEHbwySbQs';
 //0:新宿オークタワー 1:新宿駅　デバッグ時のダミーデータ
 const coordinates = [{ latitude: 35.694125, longitude: 139.690486,}, { latitude: 35.689179, longitude: 139.701038,},];
@@ -13,6 +17,9 @@ export default class App extends React.Component {
     super(props);
     this.state = { delta: { latitude: 0.025, longitude: 0.02,}, startPoint: null, endPoint: null,};
     this._setCoords();
+
+    let _routes = Directions.routeRequests('新宿オークタワー', 'ディズニーランド');
+    console.log('_routes :', _routes);
   }
 
   async _setCoords() {
@@ -60,12 +67,21 @@ export default class App extends React.Component {
              description="新宿駅"
              coordinate={this.state.endPoint}
            />
-           <Directions
+           <MapsDirections
              origin={this.state.startPoint}
              destination={this.state.endPoint}
              apikey={directionsAPI}
              strokeWidth={5}
              strokeColor="hotpink"
+             onStart={(params) => {
+              console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
+            }}
+            onReady={(result) => {
+              console.log('onReady: ', result);
+            }}
+            onError={(errorMessage) => {
+              console.log('Error: ', errorMessage);
+            }}
            />
           </MapView>
         </View>
